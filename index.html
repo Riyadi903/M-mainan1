@@ -1,0 +1,2983 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RYD STORE OFFICIAL - V.PRO MASTER</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            --hover-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #334155;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .gradient-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            background: white;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+        }
+        
+        .sub-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            padding: 20px;
+            display: none;
+        }
+        
+        .sub-page.active {
+            transform: translateX(0);
+            display: block;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalSlideUp 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin: 0 auto 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .category-icon:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+        
+        .transaction-item {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .transaction-item:hover {
+            border-left-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        @media (max-width: 480px) {
+            .sub-page {
+                padding: 16px;
+            }
+            
+            .category-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+        
+        .card-white {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .input-sm {
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+        
+        .saldo-amount {
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        
+        .saldo-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+        
+        .promo-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 12px 16px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .nav-text {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        
+        .resi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bank-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        @media (max-width: 360px) {
+            .bank-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .step-1, .step-2 {
+            display: none;
+        }
+        
+        .step-1.active, .step-2.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="max-w-md mx-auto min-h-screen relative pb-32"></div>
+
+<!-- Modal Produk -->
+<div id="modalProduk" class="modal-overlay" onclick="tutupModal()">
+    <div class="modal-content p-6" onclick="event.stopPropagation()">
+        <!-- Step 1: Pilih Item -->
+        <div id="step1Produk" class="step-1 active">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modalTitle" class="text-lg font-bold text-gray-800">Pilih Item</h3>
+                <button onclick="tutupModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="mb-5">
+                <label class="block text-sm font-semibold text-gray-600 mb-2">Tujuan / ID Player</label>
+                <input id="inputTujuan" type="text" placeholder="Contoh: 08123456789 atau 12345678" 
+                       class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+            </div>
+            
+            <div id="listProduk" class="grid grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto pb-4"></div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-500 text-center">Pastikan data tujuan sudah benar sebelum membeli</p>
+            </div>
+        </div>
+        
+        <!-- Step 2: Konfirmasi dengan Password -->
+        <div id="step2Produk" class="step-2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Konfirmasi Pembelian</h3>
+                <button onclick="kembaliKeStep1()" class="text-gray-400 hover:text-gray-600 text-2xl">←</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                    <h4 class="font-bold text-gray-800 text-sm mb-3">Detail Pembelian:</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Produk:</span>
+                            <span id="confirmProduk" class="text-sm font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Tujuan:</span>
+                            <span id="confirmTujuan" class="text-sm font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total Bayar:</span>
+                            <span id="confirmHarga" class="text-sm font-bold text-blue-600">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Saldo Setelah:</span>
+                            <span id="confirmSaldo" class="text-sm font-bold text-red-600">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Password Akun</label>
+                    <input id="confirmPassword" type="password" placeholder="Masukkan password Anda" 
+                           class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mt-6">
+                    <button onclick="kembaliKeStep1()" class="p-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                        Batal
+                    </button>
+                    <button onclick="konfirmasiPembelian()" class="p-3 btn-success rounded-xl font-bold">
+                        Konfirmasi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Transfer -->
+<div id="modalTransfer" class="modal-overlay" onclick="tutupModalTransfer()">
+    <div class="modal-content p-6" onclick="event.stopPropagation()">
+        <!-- Step 1: Input Data Transfer -->
+        <div id="step1Transfer" class="step-1 active">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Transfer Saldo</h3>
+                <button onclick="tutupModalTransfer()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Username Tujuan</label>
+                    <input id="tfUsername" type="text" placeholder="Masukkan username penerima" 
+                           class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Jumlah Transfer</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                        <input id="tfAmount" type="number" placeholder="Minimal Rp 10.000" 
+                               class="w-full p-3 pl-12 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Saldo Anda: <span id="saldoTransfer" class="font-bold">Rp 0</span></p>
+                </div>
+                
+                <button onclick="lanjutKonfirmasiTransfer()" class="w-full btn-success p-3 rounded-xl font-bold text-base mt-6">
+                    Lanjutkan
+                </button>
+            </div>
+        </div>
+        
+        <!-- Step 2: Konfirmasi Transfer -->
+        <div id="step2Transfer" class="step-2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Konfirmasi Transfer</h3>
+                <button onclick="kembaliKeStep1Transfer()" class="text-gray-400 hover:text-gray-600 text-2xl">←</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                    <h4 class="font-bold text-gray-800 text-sm mb-3">Detail Transfer:</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Penerima:</span>
+                            <span id="confirmTfPenerima" class="text-sm font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Jumlah:</span>
+                            <span id="confirmTfJumlah" class="text-sm font-bold text-blue-600">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Saldo Setelah:</span>
+                            <span id="confirmTfSaldo" class="text-sm font-bold text-red-600">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Password Akun</label>
+                    <input id="confirmTfPassword" type="password" placeholder="Masukkan password Anda" 
+                           class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mt-6">
+                    <button onclick="kembaliKeStep1Transfer()" class="p-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                        Batal
+                    </button>
+                    <button onclick="konfirmasiTransferAkhir()" class="p-3 btn-success rounded-xl font-bold">
+                        Transfer Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Top Up -->
+<div id="modalTopUp" class="modal-overlay" onclick="tutupModalTopUp()">
+    <div class="modal-content p-6" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-gray-800">Top Up Saldo</h3>
+            <button onclick="tutupModalTopUp()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-2">Jumlah Top Up</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                    <input id="topupAmount" type="number" placeholder="Minimal Rp 10.000" 
+                           class="w-full p-3 pl-12 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Saldo akan bertambah setelah pembayaran dikonfirmasi</p>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2 mt-4">
+                <button onclick="setTopUpAmount(10000)" class="p-3 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-all text-sm">10K</button>
+                <button onclick="setTopUpAmount(50000)" class="p-3 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-all text-sm">50K</button>
+                <button onclick="setTopUpAmount(100000)" class="p-3 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-all text-sm">100K</button>
+                <button onclick="setTopUpAmount(200000)" class="p-3 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-all text-sm">200K</button>
+                <button onclick="setTopUpAmount(500000)" class="p-3 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-all text-sm">500K</button>
+                <button onclick="setTopUpAmount(1000000)" class="p-3 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-all text-sm">1 JT</button>
+            </div>
+            
+            <button onclick="konfirmasiTopUp()" class="w-full btn-primary p-3 rounded-xl font-bold text-base mt-6">
+                Lanjutkan ke WhatsApp
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Top Up -->
+<div id="modalKonfirmasiTopUp" class="modal-overlay" onclick="tutupModalKonfirmasiTopUp()">
+    <div class="modal-content p-6" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-gray-800">Konfirmasi Top Up</h3>
+            <button onclick="tutupModalKonfirmasiTopUp()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        
+        <div class="space-y-4">
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                <h4 class="font-bold text-gray-800 text-sm mb-3">Detail Top Up:</h4>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">User:</span>
+                        <span id="confirmTopUpUser" class="text-sm font-bold text-gray-800">@username</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Jumlah:</span>
+                        <span id="confirmTopUpAmount" class="text-sm font-bold text-blue-600">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-600">Waktu:</span>
+                        <span id="confirmTopUpWaktu" class="text-sm font-bold text-gray-800">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-2">Password Akun</label>
+                <input id="confirmTopUpPassword" type="password" placeholder="Masukkan password Anda" 
+                       class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <button onclick="tutupModalKonfirmasiTopUp()" class="p-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                    Batal
+                </button>
+                <button onclick="prosesTopUpAkhir()" class="p-3 btn-primary rounded-xl font-bold">
+                    Lanjut ke WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Bank Transfer -->
+<div id="modalBank" class="modal-overlay" onclick="tutupModalBank()">
+    <div class="modal-content p-6" onclick="event.stopPropagation()">
+        <!-- Step 1: Input Data Bank -->
+        <div id="step1Bank" class="step-1 active">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="bankTitle" class="text-lg font-bold text-gray-800">Transfer Bank</h3>
+                <button onclick="tutupModalBank()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">No. Rekening Tujuan</label>
+                    <input id="bankRekening" type="text" placeholder="Contoh: 1234567890" 
+                           class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Nama Penerima</label>
+                    <input id="bankNama" type="text" placeholder="Nama sesuai rekening" 
+                           class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Nominal Transfer</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                        <input id="bankNominal" type="number" placeholder="Minimal Rp 10.000 (Maksimal 10jt)" 
+                               class="w-full p-3 pl-12 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium"
+                               oninput="hitungAdminBank(this.value)">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Saldo Anda: <span id="saldoBank" class="font-bold">Rp 0</span></p>
+                </div>
+                
+                <div id="adminInfoBank" class="p-4 bg-blue-50 border-2 border-blue-100 rounded-xl">
+                    <p class="text-xs font-bold text-blue-600 uppercase mb-1">Total Bayar</p>
+                    <h2 id="totalBank" class="text-lg font-bold text-gray-800">Rp 0</h2>
+                    <p class="text-xs text-gray-500 mt-1">Termasuk biaya admin</p>
+                </div>
+                
+                <button onclick="lanjutKonfirmasiBank()" class="w-full btn-primary p-3 rounded-xl font-bold text-base mt-4">
+                    Lanjutkan
+                </button>
+            </div>
+        </div>
+        
+        <!-- Step 2: Konfirmasi Bank -->
+        <div id="step2Bank" class="step-2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Konfirmasi Transfer Bank</h3>
+                <button onclick="kembaliKeStep1Bank()" class="text-gray-400 hover:text-gray-600 text-2xl">←</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                    <h4 class="font-bold text-gray-800 text-sm mb-3">Detail Transfer Bank:</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Bank:</span>
+                            <span id="confirmBankNama" class="text-sm font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Rekening:</span>
+                            <span id="confirmBankRek" class="text-sm font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Nama:</span>
+                            <span id="confirmBankNamaPenerima" class="text-sm font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Nominal:</span>
+                            <span id="confirmBankNominal" class="text-sm font-bold text-blue-600">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Biaya Admin:</span>
+                            <span id="confirmBankAdmin" class="text-sm font-bold text-orange-600">-</span>
+                        </div>
+                        <div class="flex justify-between border-t pt-2">
+                            <span class="text-sm font-bold text-gray-700">Total Bayar:</span>
+                            <span id="confirmBankTotal" class="text-sm font-bold text-green-600">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Saldo Setelah:</span>
+                            <span id="confirmBankSaldo" class="text-sm font-bold text-red-600">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-2">Password Akun</label>
+                    <input id="confirmBankPassword" type="password" placeholder="Masukkan password Anda" 
+                           class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mt-6">
+                    <button onclick="kembaliKeStep1Bank()" class="p-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all">
+                        Batal
+                    </button>
+                    <button onclick="konfirmasiBankAkhir()" class="p-3 btn-success rounded-xl font-bold">
+                        Transfer Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sub Pages -->
+<div id="pageEwallet" class="sub-page max-w-md mx-auto">
+    <div class="sticky top-0 glass-effect z-10 p-4 rounded-b-3xl mb-6">
+        <div class="flex items-center gap-4">
+            <button onclick="closeSubPage('pageEwallet')" class="w-10 h-10 bg-white shadow-md rounded-xl flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 transition-all">
+                ←
+            </button>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">E-Wallet & Dompet Digital</h2>
+                <p class="text-xs text-gray-500">Isi saldo e-wallet favorit Anda</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-2 gap-4 px-2">
+        <div onclick="bukaModal('DANA', 'E-Wallet', 'bg-blue-500', 'D')" class="card-hover card-white p-6 flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-blue-500 to-blue-600">D</div>
+            <span class="font-bold text-gray-800 mt-2">DANA</span>
+            <p class="text-xs text-gray-500 text-center mt-1">Mulai Rp 5.000</p>
+        </div>
+        <div onclick="bukaModal('OVO', 'E-Wallet', 'bg-purple-600', 'O')" class="card-hover card-white p-6 flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-purple-600 to-purple-700">O</div>
+            <span class="font-bold text-gray-800 mt-2">OVO</span>
+            <p class="text-xs text-gray-500 text-center mt-1">Mulai Rp 5.000</p>
+        </div>
+        <div onclick="bukaModal('GOPAY', 'E-Wallet', 'bg-green-500', 'G')" class="card-hover card-white p-6 flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-green-500 to-green-600">G</div>
+            <span class="font-bold text-gray-800 mt-2">GOPAY</span>
+            <p class="text-xs text-gray-500 text-center mt-1">Mulai Rp 5.000</p>
+        </div>
+        <div onclick="bukaModal('ShopeePay', 'E-Wallet', 'bg-orange-500', 'S')" class="card-hover card-white p-6 flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-orange-500 to-orange-600">S</div>
+            <span class="font-bold text-gray-800 mt-2">ShopeePay</span>
+            <p class="text-xs text-gray-500 text-center mt-1">Mulai Rp 5.000</p>
+        </div>
+        <div onclick="bukaModal('LinkAja', 'E-Wallet', 'bg-red-500', 'L')" class="card-hover card-white p-6 flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-red-500 to-red-600">L</div>
+            <span class="font-bold text-gray-800 mt-2">LinkAja</span>
+            <p class="text-xs text-gray-500 text-center mt-1">Mulai Rp 5.000</p>
+        </div>
+        <div onclick="bukaModal('Jenius', 'E-Wallet', 'bg-pink-500', 'J')" class="card-hover card-white p-6 flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-pink-500 to-pink-600">J</div>
+            <span class="font-bold text-gray-800 mt-2">Jenius</span>
+            <p class="text-xs text-gray-500 text-center mt-1">Mulai Rp 5.000</p>
+        </div>
+    </div>
+    
+    <div class="mt-8 px-2">
+        <div class="promo-banner">
+            <h4 class="font-bold text-sm mb-2">💡 Tips Pembelian</h4>
+            <p class="text-xs opacity-90">Pastikan nomor tujuan sudah benar sebelum melakukan pembelian. Transaksi yang sudah berhasil tidak dapat dibatalkan.</p>
+        </div>
+    </div>
+</div>
+
+<div id="pageGame" class="sub-page max-w-md mx-auto">
+    <div class="sticky top-0 glass-effect z-10 p-4 rounded-b-3xl mb-6">
+        <div class="flex items-center gap-4">
+            <button onclick="closeSubPage('pageGame')" class="w-10 h-10 bg-white shadow-md rounded-xl flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 transition-all">
+                ←
+            </button>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Top Up Game</h2>
+                <p class="text-xs text-gray-500">Diamond, UC, Voucher & Koin Game</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-3 gap-4 px-2">
+        <div onclick="bukaModal('Mobile Legends', 'Diamond', 'bg-gradient-to-br from-orange-500 to-red-600', 'ML')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-orange-500 to-red-600">ML</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Mobile Legends</span>
+        </div>
+        <div onclick="bukaModal('Free Fire', 'Diamond', 'bg-gradient-to-br from-amber-600 to-amber-700', 'FF')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-amber-600 to-amber-700">FF</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Free Fire</span>
+        </div>
+        <div onclick="bukaModal('PUBG Mobile', 'UC', 'bg-gradient-to-br from-gray-700 to-gray-900', 'PUBG')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-gray-700 to-gray-900">PB</div>
+            <span class="text-xs font-bold text-gray-800 text-center">PUBG Mobile</span>
+        </div>
+        <div onclick="bukaModal('Royal Dream', 'CHIP', 'bg-gradient-to-br from-purple-600 to-indigo-700', 'RD')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-purple-600 to-indigo-700">RD</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Royal Dream</span>
+        </div>
+        <div onclick="bukaModal('Higgs Domino', 'Koin', 'bg-gradient-to-br from-pink-600 to-rose-700', 'HD')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-pink-600 to-rose-700">HD</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Higgs Domino</span>
+        </div>
+        <div onclick="bukaModal('AOV', 'Voucher', 'bg-gradient-to-br from-cyan-500 to-blue-600', 'AOV')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-cyan-500 to-blue-600">AV</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Arena of Valor</span>
+        </div>
+        <div onclick="bukaModal('COD Mobile', 'CP', 'bg-gradient-to-br from-gray-800 to-black', 'CODM')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-gray-800 to-black">CO</div>
+            <span class="text-xs font-bold text-gray-800 text-center">CODM</span>
+        </div>
+        <div onclick="bukaModal('Valorant', 'Points', 'bg-gradient-to-br from-red-500 to-red-700', 'VAL')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-red-500 to-red-700">V</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Valorant</span>
+        </div>
+        <div onclick="bukaModal('Genshin Impact', 'Crystals', 'bg-gradient-to-br from-blue-400 to-teal-500', 'GI')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-blue-400 to-teal-500">GI</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Genshin Impact</span>
+        </div>
+        <div onclick="bukaModal('Honkai Star Rail', 'Stellar Jade', 'bg-gradient-to-br from-indigo-500 to-purple-600', 'HSR')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-indigo-500 to-purple-600">HS</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Honkai Star Rail</span>
+        </div>
+        <div onclick="bukaModal('League of Legends', 'RP', 'bg-gradient-to-br from-blue-600 to-blue-800', 'LOL')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-blue-600 to-blue-800">LOL</div>
+            <span class="text-xs font-bold text-gray-800 text-center">League of Legends</span>
+        </div>
+        <div onclick="bukaModal('Wild Rift', 'Wild Cores', 'bg-gradient-to-br from-teal-500 to-green-600', 'WR')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-teal-500 to-green-600">WR</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Wild Rift</span>
+        </div>
+        <div onclick="bukaModal('Point Blank', 'Cash', 'bg-gradient-to-br from-red-600 to-red-800', 'PB')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-red-600 to-red-800">PB</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Point Blank</span>
+        </div>
+        <div onclick="bukaModal('Apex Legends', 'Coins', 'bg-gradient-to-br from-yellow-500 to-orange-600', 'AL')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-yellow-500 to-orange-600">AL</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Apex Legends</span>
+        </div>
+        <div onclick="bukaModal('Ragnarok M', 'BCoin', 'bg-gradient-to-br from-yellow-600 to-amber-700', 'RO')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-yellow-600 to-amber-700">RO</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Ragnarok M</span>
+        </div>
+        <div onclick="bukaModal('Clash of Clans', 'Gems', 'bg-gradient-to-br from-orange-400 to-red-500', 'COC')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-orange-400 to-red-500">COC</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Clash of Clans</span>
+        </div>
+    </div>
+    
+    <div class="mt-8 px-2">
+        <div class="promo-banner" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <h4 class="font-bold text-sm mb-2">🎮 Game Lainnya</h4>
+            <p class="text-xs opacity-90">Game tidak tersedia? Hubungi admin untuk request game yang ingin Anda top up.</p>
+        </div>
+    </div>
+</div>
+
+<div id="pageInvite" class="sub-page max-w-md mx-auto">
+    <div class="sticky top-0 glass-effect z-10 p-4 rounded-b-3xl mb-6">
+        <div class="flex items-center gap-4">
+            <button onclick="closeSubPage('pageInvite')" class="w-10 h-10 bg-white shadow-md rounded-xl flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 transition-all">
+                ←
+            </button>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Program Referral</h2>
+                <p class="text-xs text-gray-500">Dapatkan bonus saldo melimpah</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="px-2">
+        <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl p-6 text-white text-center mb-8 shadow-lg">
+            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-3xl">🎁</span>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Dapatkan Bonus Rp 3.000</h3>
+            <p class="text-sm opacity-90">Per undangan yang top up minimal Rp 100.000 (maks 5 orang)</p>
+        </div>
+        
+        <div class="space-y-6">
+            <div class="card-white p-5">
+                <h4 class="font-bold text-gray-800 text-sm mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs">1</span>
+                    Salin Kode Referral
+                </h4>
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Kode Referral Anda</p>
+                    <div class="flex items-center justify-between">
+                        <h3 id="refCode" class="text-2xl font-bold text-gray-800 tracking-wider">LOADING...</h3>
+                        <button onclick="salinRef()" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-white p-5">
+                <h4 class="font-bold text-gray-800 text-sm mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs">2</span>
+                    Bagikan Ke Teman
+                </h4>
+                <p class="text-sm text-gray-600 mb-4">Bagikan kode referral Anda ke teman dan ajak mereka bergabung di RYD STORE.</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="shareToWhatsApp()" class="p-3 bg-green-50 text-green-600 rounded-lg font-medium flex items-center justify-center gap-2 text-sm">
+                        <span>📱</span> WhatsApp
+                    </button>
+                    <button onclick="shareToTelegram()" class="p-3 bg-blue-50 text-blue-600 rounded-lg font-medium flex items-center justify-center gap-2 text-sm">
+                        <span>✈️</span> Telegram
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card-white p-5">
+                <h4 class="font-bold text-gray-800 text-sm mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs">3</span>
+                    Dapatkan Komisi
+                </h4>
+                <p class="text-sm text-gray-600">Anda akan mendapatkan komisi Rp 3.000 untuk setiap teman yang Anda undang dan melakukan top up minimal Rp 100.000. Maksimal 5 orang (total bonus Rp 15.000).</p>
+                <div class="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
+                    <p class="text-xs font-bold text-gray-600">Contoh: Jika 5 teman top up minimal Rp 100.000, Anda dapat Rp 15.000!</p>
+                </div>
+            </div>
+            
+            <div class="card-white p-5">
+                <h4 class="font-bold text-gray-800 text-sm mb-4 flex items-center gap-2">
+                    <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs">!</span>
+                    Syarat dan Ketentuan
+                </h4>
+                <ul class="text-sm text-gray-600 space-y-2">
+                    <li>• Bonus diberikan jika teman yang diundang top up minimal Rp 100.000</li>
+                    <li>• Bonus Rp 3.000 per undangan yang memenuhi syarat</li>
+                    <li>• Maksimal 5 undangan yang mendapatkan bonus (total Rp 15.000)</li>
+                    <li>• Bonus akan diproses dalam 7 hari setelah top up</li>
+                    <li>• Bonus hanya diberikan sekali per undangan</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="pageProfile" class="sub-page max-w-md mx-auto">
+    <div class="sticky top-0 glass-effect z-10 p-4 rounded-b-3xl mb-6">
+        <div class="flex items-center gap-4">
+            <button onclick="closeSubPage('pageProfile')" class="w-10 h-10 bg-white shadow-md rounded-xl flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 transition-all">
+                ←
+            </button>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Profil Saya</h2>
+                <p class="text-xs text-gray-500">Kelola akun dan data pribadi</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="px-2">
+        <div class="flex flex-col items-center mb-8">
+            <div class="relative mb-6">
+                <img id="my_photo" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" 
+                     class="w-28 h-28 rounded-2xl object-cover border-4 border-white shadow-lg">
+                <label for="up_foto" class="absolute -bottom-2 -right-2 bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-full text-white cursor-pointer shadow-lg border-4 border-white">
+                    📷
+                </label>
+                <input type="file" id="up_foto" class="hidden" accept="image/*" onchange="prosesFoto()">
+            </div>
+            <h3 id="my_display_name" class="text-xl font-bold text-gray-800">@USERNAME</h3>
+            <p id="my_member_since" class="text-sm text-gray-500 mt-1">Member sejak: Loading...</p>
+        </div>
+        
+        <div class="space-y-5">
+            <div class="card-white p-5">
+                <h4 class="font-bold text-gray-800 text-sm mb-4">Informasi Pribadi</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-2">Nama Lengkap</label>
+                        <input id="up_nama" type="text" placeholder="Masukkan nama lengkap" 
+                               class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-2">Nomor WhatsApp</label>
+                        <input id="up_wa" type="number" placeholder="Contoh: 628123456789" 
+                               class="w-full p-3 input-sm bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-white p-5">
+                <h4 class="font-bold text-gray-800 text-sm mb-4">Informasi Akun</h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Username</span>
+                        <span id="info_username" class="font-bold text-gray-800">@username</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                        <span class="text-sm text-gray-600">Kode Referral</span>
+                        <span id="info_refcode" class="font-bold text-blue-600">RYD123</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3">
+                        <span class="text-sm text-gray-600">Total Transaksi</span>
+                        <span id="info_transaksi" class="font-bold text-gray-800">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="saveDataProfil()" class="w-full btn-primary p-3 rounded-xl font-bold text-base">
+                Simpan Perubahan
+            </button>
+            
+            <button onclick="konfirmasiLogout()" class="w-full p-3 text-red-500 font-bold border border-red-200 rounded-xl hover:bg-red-50 transition-all text-base">
+                Keluar Akun
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="pageBank" class="sub-page max-w-md mx-auto">
+    <div class="sticky top-0 glass-effect z-10 p-4 rounded-b-3xl mb-6">
+        <div class="flex items-center gap-4">
+            <button onclick="closeSubPage('pageBank')" class="w-10 h-10 bg-white shadow-md rounded-xl flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 transition-all">
+                ←
+            </button>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Transfer Bank</h2>
+                <p class="text-xs text-gray-500">Pilih bank tujuan transfer</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="px-2">
+        <div class="promo-banner mb-6" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+            <h4 class="font-bold text-sm mb-1">💡 Biaya Admin Transfer Bank</h4>
+            <p class="text-xs opacity-90">
+                ≤100rb: Rp1.500 | ≤500rb: Rp2.000 | ≤1jt: Rp5.000 | ≤10jt: Rp10.000
+            </p>
+        </div>
+        
+        <div class="relative mb-6">
+            <input type="text" id="searchBank" onkeyup="filterBank()" placeholder="Cari nama bank..." 
+                   class="w-full p-3 pl-12 input-sm bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium shadow-sm">
+            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+        </div>
+        
+        <div id="listBank" class="bank-grid pb-20">
+            <!-- Daftar bank akan dimuat di sini -->
+        </div>
+    </div>
+</div>
+
+<div id="pagePulsa" class="sub-page max-w-md mx-auto">
+    <div class="sticky top-0 glass-effect z-10 p-4 rounded-b-3xl mb-6">
+        <div class="flex items-center gap-4">
+            <button onclick="closeSubPage('pagePulsa')" class="w-10 h-10 bg-white shadow-md rounded-xl flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 transition-all">
+                ←
+            </button>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Pulsa & Paket Data</h2>
+                <p class="text-xs text-gray-500">Isi pulsa dan paket internet</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-3 gap-4 px-2">
+        <div onclick="bukaModal('Telkomsel', 'Pulsa', 'bg-gradient-to-br from-red-500 to-red-600', 'TS')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-red-500 to-red-600">TS</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Telkomsel</span>
+            <p class="text-[10px] text-gray-500 text-center">Pulsa & Paket</p>
+        </div>
+        <div onclick="bukaModal('Indosat', 'Pulsa', 'bg-gradient-to-br from-yellow-500 to-yellow-600', 'IS')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-yellow-500 to-yellow-600">IS</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Indosat</span>
+            <p class="text-[10px] text-gray-500 text-center">Pulsa & Paket</p>
+        </div>
+        <div onclick="bukaModal('XL', 'Pulsa', 'bg-gradient-to-br from-blue-500 to-blue-600', 'XL')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-blue-500 to-blue-600">XL</div>
+            <span class="text-xs font-bold text-gray-800 text-center">XL Axiata</span>
+            <p class="text-[10px] text-gray-500 text-center">Pulsa & Paket</p>
+        </div>
+        <div onclick="bukaModal('Axis', 'Pulsa', 'bg-gradient-to-br from-purple-500 to-purple-600', 'AX')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-purple-500 to-purple-600">AX</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Axis</span>
+            <p class="text-[10px] text-gray-500 text-center">Pulsa & Paket</p>
+        </div>
+        <div onclick="bukaModal('Tri', 'Pulsa', 'bg-gradient-to-br from-pink-500 to-pink-600', '3')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-pink-500 to-pink-600">3</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Tri</span>
+            <p class="text-[10px] text-gray-500 text-center">Pulsa & Paket</p>
+        </div>
+        <div onclick="bukaModal('Smartfren', 'Pulsa', 'bg-gradient-to-br from-green-500 to-green-600', 'SF')" class="card-hover flex flex-col items-center cursor-pointer">
+            <div class="category-icon bg-gradient-to-br from-green-500 to-green-600">SF</div>
+            <span class="text-xs font-bold text-gray-800 text-center">Smartfren</span>
+            <p class="text-[10px] text-gray-500 text-center">Pulsa & Paket</p>
+        </div>
+    </div>
+    
+    <div class="mt-8 px-2">
+        <div class="promo-banner" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <h4 class="font-bold text-sm mb-2">📶 Paket Data</h4>
+            <p class="text-xs opacity-90">Tersedia juga paket internet harian, mingguan, dan bulanan untuk semua operator.</p>
+        </div>
+    </div>
+</div>
+
+<div id="pageResi" class="sub-page max-w-md mx-auto">
+    <div class="sticky top-0 glass-effect z-10 p-4 rounded-b-3xl mb-6">
+        <div class="flex items-center gap-4">
+            <button onclick="closeSubPage('pageResi')" class="w-10 h-10 bg-white shadow-md rounded-xl flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 transition-all">
+                ←
+            </button>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Resi Transaksi</h2>
+                <p class="text-xs text-gray-500">Detail transaksi terbaru</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="px-4">
+        <div class="resi-card mb-8">
+            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <span class="text-3xl">✅</span>
+            </div>
+            <h2 class="text-2xl font-bold text-center mb-2">Transaksi Berhasil</h2>
+            <p class="text-sm text-center opacity-90 mb-4">Official Digital Receipt</p>
+            <p class="text-xs text-center opacity-75">ID: <span id="res_id" class="font-mono font-bold">---</span></p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-lg p-6 mb-8">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center pb-4 border-b border-gray-100">
+                    <div>
+                        <p class="text-sm text-gray-500">Pelanggan</p>
+                        <p id="res_user" class="font-bold text-gray-800 text-lg">---</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Waktu</p>
+                        <p id="res_jam" class="font-bold text-gray-800">---</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center pb-4 border-b border-gray-100">
+                    <div>
+                        <p class="text-sm text-gray-500">Layanan</p>
+                        <p id="res_layanan" class="font-bold text-blue-600 text-lg">---</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Total Bayar</p>
+                        <p id="res_total" class="text-2xl font-bold text-gray-800">---</p>
+                    </div>
+                </div>
+                <div class="text-center pt-4">
+                    <p class="text-sm text-gray-500 mb-2">Status Transaksi</p>
+                    <span class="inline-block px-4 py-2 bg-green-100 text-green-800 rounded-full font-bold text-sm">SUKSES</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="space-y-4">
+            <button onclick="window.print()" class="w-full btn-primary p-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+                📥 Download Resi (PDF)
+            </button>
+            <button onclick="shareResi()" class="w-full p-4 bg-white border-2 border-gray-300 text-gray-700 rounded-2xl font-bold text-lg hover:bg-gray-50 transition-all">
+                🔗 Bagikan Resi
+            </button>
+            <p class="text-center text-xs text-gray-500 font-medium mt-8">RYD STORE - Payment System Protected</p>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Button -->
+<button onclick="openTopUp()" class="fab gradient-primary">
+    💰
+</button>
+
+<script>
+    // ============================================
+    // KONFIGURASI FIREBASE & APLIKASI
+    // ============================================
+    
+    const WA_ADMIN = "6285881934739";
+    const APP_NAME = "RYD STORE V.PRO MASTER";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyCEeF0D3RB5uthkMKx5rkSTEYii-7Pp0KM",
+        authDomain: "riyadistore3.firebaseapp.com",
+        databaseURL: "https://riyadistore3-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "riyadistore3",
+        storageBucket: "riyadistore3.firebasestorage.app",
+        messagingSenderId: "28764528472",
+        appId: "1:28764528472:web:941e615ef35d62b4724f2d"
+    };
+    
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    let userAktif = null;
+    let passAktif = null;
+    let saldoAktif = 0;
+    let isHide = false;
+    let userData = {};
+    let currentTransaction = {
+        type: null,
+        product: null,
+        target: null,
+        amount: 0,
+        adminFee: 0,
+        total: 0,
+        bankName: null,
+        bankAccount: null,
+        bankRecipient: null
+    };
+
+    // ============================================
+    // FUNGSI LOGIN & REGISTER
+    // ============================================
+    
+    function renderLogin() {
+        document.getElementById('app').innerHTML = `
+        <div class="min-h-screen flex flex-col justify-center p-8">
+            <div class="text-center mb-10">
+                <div class="w-24 h-24 gradient-primary rounded-3xl mx-auto mb-6 flex items-center justify-center text-4xl font-black text-white shadow-xl">
+                    RYD
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">RYD STORE</h1>
+                <p class="text-gray-500 text-sm">V.PRO MASTER EDITION</p>
+            </div>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input id="l_u" type="text" placeholder="Masukkan username" 
+                           class="w-full p-3 input-sm bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium shadow-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="l_p" type="password" placeholder="Masukkan password" 
+                           class="w-full p-3 input-sm bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium shadow-sm">
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="rememberMe" class="mr-2 rounded">
+                        <span class="text-sm text-gray-600">Ingat saya</span>
+                    </label>
+                    <button onclick="lupaPassword()" class="text-sm text-blue-500 hover:text-blue-700 font-medium">
+                        Lupa password?
+                    </button>
+                </div>
+                
+                <button onclick="doLogin()" class="w-full btn-primary p-3 rounded-xl font-bold text-base shadow-lg">
+                    Masuk Akun
+                </button>
+                
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-gray-500">Belum punya akun?</span>
+                    </div>
+                </div>
+                
+                <button onclick="renderRegister()" class="w-full p-3 border-2 border-blue-500 text-blue-500 rounded-xl font-bold hover:bg-blue-50 transition-all">
+                    Daftar Akun Baru
+                </button>
+            </div>
+            
+            <div class="mt-10 text-center">
+                <p class="text-xs text-gray-400">© 2024 RYD STORE OFFICIAL. All rights reserved.</p>
+            </div>
+        </div>`;
+        
+        const savedUser = localStorage.getItem('ryd_username');
+        const savedPass = localStorage.getItem('ryd_password');
+        if (savedUser && savedPass && document.getElementById('rememberMe')) {
+            document.getElementById('l_u').value = savedUser;
+            document.getElementById('l_p').value = savedPass;
+            document.getElementById('rememberMe').checked = true;
+        }
+    }
+
+    function renderRegister() {
+        document.getElementById('app').innerHTML = `
+        <div class="min-h-screen p-8">
+            <button onclick="renderLogin()" class="mb-8 text-gray-500 hover:text-gray-700 flex items-center gap-2">
+                ← Kembali ke Login
+            </button>
+            
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Daftar Akun Baru</h2>
+                <p class="text-gray-500 text-sm">Bergabung dengan RYD STORE</p>
+            </div>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input id="r_u" type="text" placeholder="Pilih username unik" 
+                           class="w-full p-3 input-sm bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium shadow-sm">
+                    <p class="text-xs text-gray-500 mt-1">Username tidak bisa diubah setelah pendaftaran</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="r_p" type="password" placeholder="Minimal 6 karakter" 
+                           class="w-full p-3 input-sm bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium shadow-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
+                    <input id="r_p2" type="password" placeholder="Ulangi password" 
+                           class="w-full p-3 input-sm bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium shadow-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kode Referral (Opsional)</label>
+                    <input id="r_ref" type="text" placeholder="Kosongkan jika tidak ada" 
+                           class="w-full p-3 input-sm bg-white rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all font-medium shadow-sm">
+                    <p class="text-xs text-gray-500 mt-1">Dapatkan bonus jika mendaftar dengan kode referral</p>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-6">
+                    <h4 class="font-bold text-blue-800 text-sm mb-2">📋 Syarat & Ketentuan</h4>
+                    <ul class="text-xs text-blue-700 space-y-1">
+                        <li>• Username harus unik dan belum terdaftar</li>
+                        <li>• Password minimal 6 karakter</li>
+                        <li>• Simpan baik-baik data login Anda</li>
+                        <li>• Pastikan kode referral valid jika ada</li>
+                    </ul>
+                </div>
+                
+                <button onclick="doRegister()" class="w-full btn-primary p-3 rounded-xl font-bold text-base mt-6 shadow-lg">
+                    Daftar Sekarang
+                </button>
+            </div>
+        </div>`;
+    }
+
+    function doLogin() {
+        const u = document.getElementById('l_u').value.toLowerCase().trim();
+        const p = document.getElementById('l_p').value;
+        const remember = document.getElementById('rememberMe')?.checked;
+        
+        if (!u || !p) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Username dan password harus diisi!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        Swal.fire({
+            title: 'Memproses...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        db.ref('users/' + u).once('value', (snapshot) => {
+            Swal.close();
+            
+            if (snapshot.exists() && snapshot.val().password === p) {
+                userAktif = u;
+                passAktif = p;
+                userData = snapshot.val();
+                saldoAktif = userData.saldo || 0;
+                
+                if (remember) {
+                    localStorage.setItem('ryd_username', u);
+                    localStorage.setItem('ryd_password', p);
+                } else {
+                    localStorage.removeItem('ryd_username');
+                    localStorage.removeItem('ryd_password');
+                }
+                
+                db.ref('users/' + u).update({
+                    lastLogin: new Date().toISOString(),
+                    loginCount: (userData.loginCount || 0) + 1
+                });
+                
+                renderDashboard();
+                
+                Swal.fire({
+                    title: 'Login Berhasil!',
+                    text: `Selamat datang kembali, ${u}!`,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+            } else {
+                Swal.fire({
+                    title: 'Gagal Login!',
+                    text: 'Username atau password salah!',
+                    icon: 'error',
+                    confirmButtonColor: '#6366f1'
+                });
+            }
+        }).catch((error) => {
+            Swal.close();
+            Swal.fire({
+                title: 'Error!',
+                text: 'Terjadi kesalahan: ' + error.message,
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+        });
+    }
+
+    function doRegister() {
+        const u = document.getElementById('r_u').value.toLowerCase().trim();
+        const p = document.getElementById('r_p').value;
+        const p2 = document.getElementById('r_p2').value;
+        const inputRef = document.getElementById('r_ref').value.toUpperCase().trim();
+        
+        if (!u || !p || !p2) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Data harus diisi lengkap!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (p.length < 6) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Password minimal 6 karakter!',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (p !== p2) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Password tidak cocok!',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (!/^[a-z0-9_]+$/.test(u)) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Username hanya boleh huruf kecil, angka, dan underscore!',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        const myNewRef = generateRandomRef();
+        
+        Swal.fire({
+            title: 'Memproses...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        db.ref('users/' + u).once('value', (snapshot) => {
+            if (snapshot.exists()) {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Username sudah digunakan!',
+                    icon: 'error',
+                    confirmButtonColor: '#6366f1'
+                });
+                return;
+            }
+            
+            // PERBAIKAN: Tambah field untuk sistem referral baru
+            db.ref('users/' + u).set({ 
+                password: p, 
+                saldo: 0, 
+                foto: "", 
+                nama: "", 
+                wa: "",
+                myReferralCode: myNewRef,
+                referredBy: inputRef || "NON-REF",
+                createdAt: new Date().toISOString(),
+                lastLogin: null,
+                loginCount: 0,
+                totalTransaksi: 0,
+                totalSpent: 0,
+                // Sistem referral baru
+                referralCount: 0,
+                referralBonus: 0,
+                referralUsers: {},
+                referralBonusPending: 0
+            }).then(() => {
+                Swal.fire({
+                    title: 'PENDAFTARAN BERHASIL!', 
+                    icon: 'success',
+                    html: `
+                    <div class='text-left'>
+                        <div class='bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-xl border border-green-200 mb-4'>
+                            <h4 class='font-bold text-green-800 mb-2'>Data Akun Anda:</h4>
+                            <p class='text-sm'><strong>Username:</strong> ${u}</p>
+                            <p class='text-sm'><strong>Password:</strong> ${p}</p>
+                            <p class='text-sm'><strong>Kode Referral:</strong> ${myNewRef}</p>
+                        </div>
+                        <p class='text-xs text-gray-600'>Simpan baik-baik data ini untuk login ke akun Anda.</p>
+                    </div>`,
+                    confirmButtonText: 'SAYA MENGERTI',
+                    confirmButtonColor: '#6366f1'
+                }).then(() => renderLogin());
+            }).catch((error) => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Gagal mendaftar: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#6366f1'
+                });
+            });
+        });
+    }
+
+    function lupaPassword() {
+        Swal.fire({
+            title: 'Lupa Password',
+            html: `
+            <div class="space-y-4">
+                <p class="text-sm text-gray-600">Hubungi admin untuk reset password:</p>
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                    <p class="font-bold text-blue-800 text-center">${WA_ADMIN}</p>
+                </div>
+                <button onclick="hubungiAdmin()" class="w-full p-3 bg-green-500 text-white rounded-lg font-bold">
+                    Hubungi via WhatsApp
+                </button>
+            </div>`,
+            showCancelButton: true,
+            cancelButtonText: 'Batal',
+            cancelButtonColor: '#ef4444',
+            showConfirmButton: false
+        });
+    }
+
+    function hubungiAdmin() {
+        window.location.href = `https://wa.me/${WA_ADMIN}?text=Halo admin, saya lupa password akun RYD STORE.`;
+    }
+
+    // ============================================
+    // DASHBOARD
+    // ============================================
+    
+    function renderDashboard() {
+        db.ref('users/' + userAktif).on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Data user tidak ditemukan!',
+                    icon: 'error',
+                    confirmButtonColor: '#6366f1'
+                });
+                renderLogin();
+                return;
+            }
+            
+            userData = data;
+            saldoAktif = data.saldo || 0;
+            const myFoto = data.foto || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+            const nama = data.nama || userAktif;
+            
+            document.getElementById('app').innerHTML = `
+                <div class="min-h-screen">
+                    <!-- Header -->
+                    <div class="gradient-primary p-6 rounded-b-3xl text-white shadow-lg">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h1 class="text-xl font-bold">RYD STORE</h1>
+                                <p class="text-sm opacity-90">V.PRO MASTER EDITION</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button onclick="openSubPage('pageProfile')" class="p-2 bg-white/20 rounded-xl hover:bg-white/30 transition-all">
+                                    👤
+                                </button>
+                                <button onclick="openSubPage('pageInvite')" class="p-2 bg-white/20 rounded-xl hover:bg-white/30 transition-all">
+                                    🎁
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile & Saldo -->
+                        <div class="flex items-center gap-4 mb-6">
+                            <img src="${myFoto}" alt="Profile" 
+                                 class="w-16 h-16 rounded-2xl object-cover border-4 border-white/30 shadow-lg">
+                            <div class="flex-1">
+                                <h2 class="font-bold text-lg">${nama}</h2>
+                                <p class="text-sm opacity-90">@${userAktif}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Saldo Card -->
+                        <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-4 mb-6">
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="text-xs opacity-90 saldo-label">Saldo Tersedia</p>
+                                <button onclick="toggleSaldo()" class="text-white/70 hover:text-white text-sm">
+                                    ${isHide ? '👁️' : '🕶️'}
+                                </button>
+                            </div>
+                            <div class="flex items-baseline justify-between">
+                                <div class="flex items-baseline">
+                                    <span class="text-lg font-bold mr-1">Rp</span>
+                                    <h1 class="saldo-amount">
+                                        ${isHide ? '••••••••' : saldoAktif.toLocaleString('id-ID')}
+                                    </h1>
+                                </div>
+                                <span class="text-xs font-bold bg-white/30 text-white px-2 py-1 rounded">IDR</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Banner Promosi -->
+                    <div class="px-6 mb-6 -mt-3">
+                        <div class="promo-banner">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-bold text-sm mb-1">🎉 PROMO SPESIAL!</h3>
+                                    <p class="text-xs opacity-90">Cashback 5% untuk top up pertama!</p>
+                                </div>
+                                <span class="text-lg">🔥</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="px-6 mb-8">
+                        <h3 class="font-bold text-gray-800 mb-4">Aksi Cepat</h3>
+                        <div class="grid grid-cols-4 gap-3">
+                            <button onclick="openTopUp()" class="card-hover card-white p-3 flex flex-col items-center">
+                                <div class="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center text-white text-lg mb-2">
+                                    ⬆️
+                                </div>
+                                <span class="text-xs font-bold text-gray-700">Top Up</span>
+                            </button>
+                            
+                            <button onclick="openTransfer()" class="card-hover card-white p-3 flex flex-col items-center">
+                                <div class="w-10 h-10 gradient-success rounded-xl flex items-center justify-center text-white text-lg mb-2">
+                                    ➡️
+                                </div>
+                                <span class="text-xs font-bold text-gray-700">Transfer</span>
+                            </button>
+                            
+                            <button onclick="openSubPage('pageGame')" class="card-hover card-white p-3 flex flex-col items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center text-white text-lg mb-2">
+                                    🎮
+                                </div>
+                                <span class="text-xs font-bold text-gray-700">Game</span>
+                            </button>
+                            
+                            <button onclick="openSubPage('pageEwallet')" class="card-hover card-white p-3 flex flex-col items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-lg mb-2">
+                                    💰
+                                </div>
+                                <span class="text-xs font-bold text-gray-700">E-Wallet</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Categories -->
+                    <div class="px-6 mb-8">
+                        <h3 class="font-bold text-gray-800 mb-4">Kategori Lainnya</h3>
+                        <div class="grid grid-cols-4 gap-3">
+                            <button onclick="openSubPage('pagePulsa')" class="card-hover card-white p-3 flex flex-col items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center text-white mb-1">
+                                    📱
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-700 text-center">Pulsa</span>
+                            </button>
+                            
+                            <button onclick="openSubPage('pageBank')" class="card-hover card-white p-3 flex flex-col items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg flex items-center justify-center text-white mb-1">
+                                    🏦
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-700 text-center">Bank</span>
+                            </button>
+                            
+                            <button onclick="loadHistory()" class="card-hover card-white p-3 flex flex-col items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center text-white mb-1">
+                                    📜
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-700 text-center">Riwayat</span>
+                            </button>
+                            
+                            <button onclick="openSubPage('pageProfile')" class="card-hover card-white p-3 flex flex-col items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white mb-1">
+                                    ⚙️
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-700 text-center">Profil</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Transaction History -->
+                    <div class="px-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-gray-800">Riwayat Transaksi</h3>
+                            <button onclick="loadHistory()" class="text-sm text-blue-500 font-medium">Lihat Semua →</button>
+                        </div>
+                        
+                        <div id="hist_container" class="space-y-3">
+                            <!-- History akan dimuat di sini -->
+                        </div>
+                        
+                        <div class="text-center py-8 text-gray-400" id="emptyHistory">
+                            <div class="text-4xl mb-3">📊</div>
+                            <p class="text-sm">Belum ada transaksi</p>
+                            <p class="text-xs mt-1">Mulai dengan melakukan top up atau pembelian</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Navigation -->
+                    <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 p-3 grid grid-cols-5 z-50">
+                        <button onclick="renderDashboard()" class="flex flex-col items-center text-blue-600">
+                            <div class="nav-icon">🏠</div>
+                            <span class="nav-text">Home</span>
+                        </button>
+                        <button onclick="openSubPage('pageGame')" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                            <div class="nav-icon">🎮</div>
+                            <span class="nav-text">Game</span>
+                        </button>
+                        <button onclick="openTopUp()" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                            <div class="nav-icon">💰</div>
+                            <span class="nav-text">Top Up</span>
+                        </button>
+                        <button onclick="openSubPage('pagePulsa')" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                            <div class="nav-icon">📱</div>
+                            <span class="nav-text">Pulsa</span>
+                        </button>
+                        <button onclick="openSubPage('pageProfile')" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                            <div class="nav-icon">👤</div>
+                            <span class="nav-text">Profil</span>
+                        </button>
+                    </div>
+                    
+                    <div class="pb-24"></div>
+                </div>
+            `;
+            
+            loadRecentHistory();
+        });
+    }
+
+    // ============================================
+    // FUNGSI PRODUK & TRANSAKSI (PERBAIKAN)
+    // ============================================
+    
+    function bukaModal(name, tipe, brandColor, initial) {
+        currentTransaction = {
+            type: 'produk',
+            product: name,
+            target: '',
+            amount: 0,
+            adminFee: 0,
+            total: 0
+        };
+        
+        document.getElementById('modalTitle').textContent = `${name} - ${tipe}`;
+        document.getElementById('inputTujuan').value = "";
+        const list = document.getElementById('listProduk');
+        list.innerHTML = "";
+        
+        let itm = [];
+        if (name === 'Royal Dream') {
+            itm = [
+                {l:'150M CHIP', b:11000}, 
+                {l:'300M CHIP', b:22000}, 
+                {l:'500M CHIP', b:36000}, 
+                {l:'1B CHIP', b:71000}, 
+                {l:'2B CHIP', b:141000}, 
+                {l:'5B CHIP', b:351000}, 
+                {l:'10B CHIP', b:701000}
+            ];
+        } else if (name === 'Mobile Legends') {
+            itm = [
+                {l:'11 Diamond', b:3000}, 
+                {l:'50 Diamond', b:12000}, 
+                {l:'172 Diamond', b:38000}, 
+                {l:'257 Diamond', b:57000}, 
+                {l:'706 Diamond', b:154000}, 
+                {l:'2195 Diamond', b:479000}, 
+                {l:'4830 Diamond', b:979000}
+            ];
+        } else if (name === 'Free Fire') {
+            itm = [
+                {l:'70 Diamond', b:9000}, 
+                {l:'140 Diamond', b:18000}, 
+                {l:'355 Diamond', b:45000}, 
+                {l:'720 Diamond', b:90000}, 
+                {l:'1440 Diamond', b:180000}, 
+                {l:'7290 Diamond', b:950000}
+            ];
+        } else if (name === 'PUBG Mobile') {
+            itm = [
+                {l:'60 UC', b:10000},
+                {l:'325 UC', b:50000},
+                {l:'660 UC', b:100000},
+                {l:'1800 UC', b:250000},
+                {l:'3850 UC', b:500000},
+                {l:'8100 UC', b:1000000}
+            ];
+        } else if (tipe === 'E-Wallet' || tipe === 'Pulsa') {
+            itm = [
+                {l:'5.000', b:5000}, 
+                {l:'10.000', b:10000}, 
+                {l:'20.000', b:20000}, 
+                {l:'50.000', b:50000}, 
+                {l:'100.000', b:100000}, 
+                {l:'200.000', b:200000}, 
+                {l:'500.000', b:500000}, 
+                {l:'1.000.000', b:1000000}
+            ];
+        } else {
+            itm = [
+                {l:'Paket Basic', b:15000}, 
+                {l:'Paket Standard', b:45000}, 
+                {l:'Paket Premium', b:90000}, 
+                {l:'Paket Max', b:450000}, 
+                {l:'Paket Ultimate', b:980000}
+            ];
+        }
+
+        itm.forEach(it => {
+            let untung = 1500; // Keuntungan tetap 1500 untuk game
+            
+            // Jika bukan game (e-wallet, pulsa, dll) gunakan aturan lama
+            if (tipe !== 'Diamond' && tipe !== 'CHIP' && tipe !== 'UC' && tipe !== 'Points' && tipe !== 'Crystals' && tipe !== 'Voucher' && tipe !== 'Koin') {
+                if (it.b <= 50000) {
+                    untung = 1500;
+                } else if (it.b <= 499999) {
+                    untung = 2000;
+                } else if (it.b <= 1000000) {
+                    untung = 5000;
+                } else {
+                    untung = 10000;
+                }
+            }
+
+            let total = it.b + untung;
+            list.innerHTML += `
+            <div onclick="pilihProduk('${name}', '${it.l}', ${total}, ${untung}, '${tipe}')" 
+                 class="card-hover card-white p-4 text-center cursor-pointer">
+                <div class="category-icon ${brandColor} mx-auto mb-3 text-sm">${initial}</div>
+                <p class="font-bold text-gray-800 text-sm">${it.l}</p>
+                <p class="text-xs text-gray-500 mt-1">Harga Normal</p>
+                <p class="text-base font-bold text-blue-600 mt-1">Rp ${total.toLocaleString('id-ID')}</p>
+                <div class="mt-2 text-[10px] text-green-600 font-medium">
+                    ✓ Tersedia
+                </div>
+            </div>`;
+        });
+        
+        document.getElementById('modalProduk').style.display = 'flex';
+        document.getElementById('step1Produk').classList.add('active');
+        document.getElementById('step2Produk').classList.remove('active');
+    }
+
+    function pilihProduk(p, i, h, untung, t) {
+        const no = document.getElementById('inputTujuan').value.trim();
+        if (!no) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'ID/Nomor tujuan harus diisi!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        currentTransaction.target = no;
+        currentTransaction.product = `${p} ${i}`;
+        currentTransaction.amount = h - untung;
+        currentTransaction.adminFee = untung;
+        currentTransaction.total = h;
+        
+        if (saldoAktif < h) {
+            Swal.fire({
+                title: 'Saldo Tidak Cukup!',
+                text: `Saldo Anda Rp ${saldoAktif.toLocaleString()}, dibutuhkan Rp ${h.toLocaleString()}`,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonText: 'Top Up Saldo',
+                confirmButtonColor: '#6366f1',
+                cancelButtonText: 'Batal',
+                cancelButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    tutupModal();
+                    openTopUp();
+                }
+            });
+            return;
+        }
+
+        // Tampilkan step 2 konfirmasi
+        document.getElementById('step1Produk').classList.remove('active');
+        document.getElementById('step2Produk').classList.add('active');
+        
+        // Isi data konfirmasi
+        document.getElementById('confirmProduk').textContent = `${p} ${i}`;
+        document.getElementById('confirmTujuan').textContent = no;
+        document.getElementById('confirmHarga').textContent = `Rp ${h.toLocaleString()}`;
+        document.getElementById('confirmSaldo').textContent = `Rp ${(saldoAktif - h).toLocaleString()}`;
+        document.getElementById('confirmPassword').value = '';
+    }
+
+    function kembaliKeStep1() {
+        document.getElementById('step2Produk').classList.remove('active');
+        document.getElementById('step1Produk').classList.add('active');
+    }
+
+    function konfirmasiPembelian() {
+        const password = document.getElementById('confirmPassword').value;
+        
+        if (!password) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Password harus diisi!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (password !== passAktif) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Password salah! Silakan coba lagi.',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (saldoAktif < currentTransaction.total) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Saldo tidak mencukupi! Silakan top up terlebih dahulu.',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        // Kurangi saldo
+        const newSaldo = saldoAktif - currentTransaction.total;
+        db.ref('users/' + userAktif).update({
+            saldo: newSaldo,
+            totalTransaksi: (userData.totalTransaksi || 0) + 1,
+            totalSpent: (userData.totalSpent || 0) + currentTransaction.total
+        });
+        
+        // Simpan history
+        saveHistory(`${currentTransaction.product} ke ${currentTransaction.target}`, currentTransaction.total);
+        
+        // Kirim ke WhatsApp Admin
+        const tgl = new Date().toLocaleString('id-ID', { 
+            dateStyle: 'short', 
+            timeStyle: 'short' 
+        });
+        
+        const pesan = `*ORDER BARU - RYD STORE*%0A%0A📋 *DETAIL TRANSAKSI*%0A├ User: *${userAktif.toUpperCase()}*%0A├ Produk: *${currentTransaction.product}*%0A├ Tujuan: *${currentTransaction.target}*%0A├ Harga Dasar: *Rp ${currentTransaction.amount.toLocaleString()}*%0A├ Keuntungan: *Rp ${currentTransaction.adminFee.toLocaleString()}*%0A├ Total Bayar: *Rp ${currentTransaction.total.toLocaleString()}*%0A├ Saldo Sebelum: *Rp ${saldoAktif.toLocaleString()}*%0A├ Saldo Sesudah: *Rp ${newSaldo.toLocaleString()}*%0A├ Waktu: *${tgl}*%0A└ Status: *MENUNGGU PROSES*%0A%0A_Silahkan proses pesanan ini segera._`;
+        window.open(`https://wa.me/${WA_ADMIN}?text=${pesan}`, '_blank');
+        
+        Swal.fire({
+            title: 'Berhasil!',
+            html: `
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl">✅</span>
+                </div>
+                <p class="font-bold text-gray-800">Pembelian Berhasil</p>
+                <p class="text-sm text-gray-600 mt-2">Pesanan sedang diproses oleh admin</p>
+            </div>`,
+            icon: 'success',
+            timer: 3000,
+            showConfirmButton: false
+        });
+        
+        tutupModal();
+        renderDashboard();
+    }
+
+    function tutupModal() { 
+        document.getElementById('modalProduk').style.display = 'none';
+    }
+
+    // ============================================
+    // FUNGSI TRANSFER SALDO (PERBAIKAN NOTIFIKASI)
+    // ============================================
+    
+    function openTransfer() {
+        document.getElementById('saldoTransfer').textContent = 'Rp ' + saldoAktif.toLocaleString('id-ID');
+        document.getElementById('modalTransfer').style.display = 'flex';
+        document.getElementById('step1Transfer').classList.add('active');
+        document.getElementById('step2Transfer').classList.remove('active');
+        document.getElementById('tfUsername').value = '';
+        document.getElementById('tfAmount').value = '';
+    }
+
+    function tutupModalTransfer() {
+        document.getElementById('modalTransfer').style.display = 'none';
+    }
+
+    function lanjutKonfirmasiTransfer() {
+        const tujuan = document.getElementById('tfUsername').value.toLowerCase().trim();
+        const jumlah = parseInt(document.getElementById('tfAmount').value);
+        
+        if (!tujuan) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Username tujuan harus diisi!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (!jumlah || jumlah < 10000) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Minimal transfer Rp 10.000!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (tujuan === userAktif) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Tidak bisa transfer ke diri sendiri!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (jumlah > saldoAktif) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Saldo tidak mencukupi! Saldo Anda: Rp ' + saldoAktif.toLocaleString(),
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        currentTransaction = {
+            type: 'transfer',
+            target: tujuan,
+            amount: jumlah,
+            adminFee: 0,
+            total: jumlah
+        };
+        
+        // Cek apakah user tujuan ada
+        db.ref('users/' + tujuan).once('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'User tujuan tidak ditemukan!',
+                    icon: 'error',
+                    confirmButtonColor: '#6366f1'
+                });
+                return;
+            }
+            
+            // Tampilkan step 2
+            document.getElementById('step1Transfer').classList.remove('active');
+            document.getElementById('step2Transfer').classList.add('active');
+            
+            document.getElementById('confirmTfPenerima').textContent = '@' + tujuan;
+            document.getElementById('confirmTfJumlah').textContent = 'Rp ' + jumlah.toLocaleString();
+            document.getElementById('confirmTfSaldo').textContent = 'Rp ' + (saldoAktif - jumlah).toLocaleString();
+            document.getElementById('confirmTfPassword').value = '';
+            
+        }).catch(error => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Terjadi kesalahan: ' + error.message,
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+        });
+    }
+
+    function kembaliKeStep1Transfer() {
+        document.getElementById('step2Transfer').classList.remove('active');
+        document.getElementById('step1Transfer').classList.add('active');
+    }
+
+    function konfirmasiTransferAkhir() {
+        const password = document.getElementById('confirmTfPassword').value;
+        
+        if (!password) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Password harus diisi!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (password !== passAktif) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Password salah! Silakan coba lagi.',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        // Kurangi saldo pengirim
+        const newSaldoSender = saldoAktif - currentTransaction.amount;
+        db.ref('users/' + userAktif).update({
+            saldo: newSaldoSender
+        });
+        
+        // Tambah saldo penerima
+        db.ref('users/' + currentTransaction.target).once('value', (snapshot) => {
+            const tujuanData = snapshot.val();
+            const newSaldoReceiver = (tujuanData.saldo || 0) + currentTransaction.amount;
+            
+            db.ref('users/' + currentTransaction.target).update({
+                saldo: newSaldoReceiver
+            });
+            
+            // Simpan history untuk pengirim
+            saveHistory(`Transfer ke @${currentTransaction.target}`, currentTransaction.amount);
+            
+            // Simpan history untuk penerima
+            const tgl = new Date().toLocaleString('id-ID', { 
+                dateStyle: 'short', 
+                timeStyle: 'short' 
+            }).replace(/\//g, '-');
+            
+            db.ref('history/' + currentTransaction.target).push({
+                item: `Transfer dari @${userAktif}`,
+                price: currentTransaction.amount,
+                date: tgl,
+                type: 'credit'
+            });
+            
+            Swal.fire({
+                title: 'Transfer Berhasil!',
+                html: `
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <p class="font-bold text-gray-800">Rp ${currentTransaction.amount.toLocaleString()}</p>
+                    <p class="text-sm text-gray-600 mt-2">Terkirim ke @${currentTransaction.target}</p>
+                </div>`,
+                icon: 'success',
+                timer: 3000,
+                showConfirmButton: false
+            });
+            
+            tutupModalTransfer();
+            renderDashboard();
+            
+        }).catch(error => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Terjadi kesalahan: ' + error.message,
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+        });
+    }
+
+    // ============================================
+    // FUNGSI TOP UP SALDO
+    // ============================================
+    
+    function openTopUp() {
+        document.getElementById('modalTopUp').style.display = 'flex';
+        document.getElementById('topupAmount').value = '';
+    }
+
+    function tutupModalTopUp() {
+        document.getElementById('modalTopUp').style.display = 'none';
+    }
+
+    function setTopUpAmount(amount) {
+        document.getElementById('topupAmount').value = amount;
+    }
+
+    function konfirmasiTopUp() {
+        const amount = parseInt(document.getElementById('topupAmount').value);
+        
+        if (!amount || amount < 10000) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Minimal top up Rp 10.000!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        currentTransaction = {
+            type: 'topup',
+            amount: amount,
+            total: amount
+        };
+        
+        const tgl = new Date().toLocaleString('id-ID', { 
+            dateStyle: 'short', 
+            timeStyle: 'short' 
+        });
+        
+        document.getElementById('confirmTopUpUser').textContent = '@' + userAktif;
+        document.getElementById('confirmTopUpAmount').textContent = 'Rp ' + amount.toLocaleString();
+        document.getElementById('confirmTopUpWaktu').textContent = tgl;
+        document.getElementById('confirmTopUpPassword').value = '';
+        
+        document.getElementById('modalTopUp').style.display = 'none';
+        document.getElementById('modalKonfirmasiTopUp').style.display = 'flex';
+    }
+
+    function tutupModalKonfirmasiTopUp() {
+        document.getElementById('modalKonfirmasiTopUp').style.display = 'none';
+    }
+
+    function prosesTopUpAkhir() {
+        const password = document.getElementById('confirmTopUpPassword').value;
+        
+        if (!password) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Password harus diisi!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (password !== passAktif) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Password salah! Silakan coba lagi.',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        const pesan = `*TOP UP SALDO - RYD STORE*%0A%0A📋 *DETAIL TOP UP*%0A├ User: *${userAktif.toUpperCase()}*%0A├ Jumlah: *Rp ${currentTransaction.amount.toLocaleString()}*%0A├ Waktu: *${new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}*%0A└ Status: *MENUNGGU KONFIRMASI*%0A%0A_Silahkan konfirmasi pembayaran untuk menambah saldo._`;
+        window.open(`https://wa.me/${WA_ADMIN}?text=${pesan}`, '_blank');
+        
+        tutupModalKonfirmasiTopUp();
+        
+        Swal.fire({
+            title: 'Berhasil!',
+            html: `
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl">✅</span>
+                </div>
+                <p class="font-bold text-gray-800">Konfirmasi Dikirim</p>
+                <p class="text-sm text-gray-600 mt-2">Silahkan hubungi admin untuk konfirmasi pembayaran</p>
+            </div>`,
+            icon: 'success',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    }
+
+    // ============================================
+    // FUNGSI PROFIL & UTILITAS
+    // ============================================
+    
+    function openSubPage(id) {
+        const target = document.getElementById(id);
+        if (target) {
+            target.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            if (id === 'pageProfile') {
+                loadProfileData();
+            } else if (id === 'pageBank') {
+                renderBankList();
+            } else if (id === 'pageInvite') {
+                document.getElementById('refCode').textContent = userData.myReferralCode || '-';
+            }
+        }
+    }
+
+    function closeSubPage(id) {
+        const target = document.getElementById(id);
+        if (target) {
+            target.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function loadProfileData() {
+        if (userData) {
+            document.getElementById('my_display_name').textContent = userData.nama || '@' + userAktif;
+            document.getElementById('up_nama').value = userData.nama || '';
+            document.getElementById('up_wa').value = userData.wa || '';
+            document.getElementById('my_photo').src = userData.foto || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+            
+            if (userData.createdAt) {
+                const joinDate = new Date(userData.createdAt).toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                document.getElementById('my_member_since').textContent = 'Member sejak: ' + joinDate;
+            }
+            
+            document.getElementById('info_username').textContent = '@' + userAktif;
+            document.getElementById('info_refcode').textContent = userData.myReferralCode || '-';
+            document.getElementById('info_transaksi').textContent = userData.totalTransaksi || 0;
+        }
+    }
+
+    function saveDataProfil() {
+        const n = document.getElementById('up_nama').value.trim();
+        const w = document.getElementById('up_wa').value.trim();
+        
+        if (!w && n) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Nomor WhatsApp diperlukan!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (w && !/^[0-9]{10,15}$/.test(w)) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Nomor WhatsApp tidak valid!',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        Swal.fire({
+            title: 'Memproses...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        db.ref('users/' + userAktif).update({ 
+            nama: n, 
+            wa: w 
+        }).then(() => { 
+            Swal.close();
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Profil berhasil disimpan',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            closeSubPage('pageProfile');
+            renderDashboard();
+        }).catch(error => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Gagal menyimpan profil: ' + error.message,
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+        });
+    }
+
+    function generateRandomRef() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let result = "RYD";
+        for (let i = 0; i < 4; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    function toggleSaldo() { 
+        isHide = !isHide; 
+        renderDashboard(); 
+    }
+
+    function prosesFoto() {
+        const file = document.getElementById('up_foto').files[0];
+        if (!file) return;
+        
+        if (file.size > 2 * 1024 * 1024) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Ukuran file maksimal 2MB!',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (!file.type.match('image.*')) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'File harus berupa gambar!',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onloadend = () => { 
+            Swal.fire({
+                title: 'Memproses...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            db.ref('users/' + userAktif + '/foto').set(reader.result)
+                .then(() => {
+                    Swal.close();
+                    Swal.fire({ 
+                        title: 'Berhasil!',
+                        text: 'Foto profil berhasil diperbarui', 
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    renderDashboard();
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Gagal mengupload foto: ' + error.message,
+                        icon: 'error',
+                        confirmButtonColor: '#6366f1'
+                    });
+                });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function salinRef() {
+        const code = document.getElementById('refCode').textContent;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(code)
+                .then(() => {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Kode referral berhasil disalin',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                })
+                .catch(err => {
+                    fallbackCopyText(code);
+                });
+        } else {
+            fallbackCopyText(code);
+        }
+    }
+
+    function fallbackCopyText(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        Swal.fire({
+            title: 'Berhasil!',
+            text: 'Kode referral berhasil disalin',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+
+    function shareToWhatsApp() {
+        const code = document.getElementById('refCode').textContent;
+        const message = `Halo! Ayo bergabung di RYD STORE. Gunakan kode referral saya: *${code}* saat mendaftar. Jika kamu top up minimal Rp 100.000, saya akan dapat bonus Rp 3.000! 🎁`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    function shareToTelegram() {
+        const code = document.getElementById('refCode').textContent;
+        const message = `Halo! Ayo bergabung di RYD STORE. Gunakan kode referral saya: ${code} saat mendaftar. Jika kamu top up minimal Rp 100.000, saya akan dapat bonus Rp 3.000! 🎁`;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent('https://rydstore.com')}&text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    function konfirmasiLogout() {
+        Swal.fire({
+            title: 'Konfirmasi Logout',
+            text: 'Apakah Anda yakin ingin keluar dari akun?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Keluar',
+            confirmButtonColor: '#ef4444',
+            cancelButtonText: 'Batal',
+            cancelButtonColor: '#6366f1'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                userAktif = null;
+                passAktif = null;
+                saldoAktif = 0;
+                userData = {};
+                renderLogin();
+                
+                Swal.fire({
+                    title: 'Berhasil Logout',
+                    text: 'Anda telah keluar dari akun',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    }
+
+    // ============================================
+    // FUNGSI RIWAYAT TRANSAKSI
+    // ============================================
+    
+    function saveHistory(item, harga) {
+        const tgl = new Date().toLocaleString('id-ID', { 
+            dateStyle: 'short', 
+            timeStyle: 'short' 
+        }).replace(/\//g, '-');
+        
+        db.ref('history/' + userAktif).push({
+            item: item,
+            price: harga,
+            date: tgl,
+            type: 'debit'
+        });
+    }
+
+    function loadRecentHistory() {
+        const container = document.getElementById('hist_container');
+        const emptyMsg = document.getElementById('emptyHistory');
+        
+        if (!container) return;
+        
+        db.ref('history/' + userAktif).orderByKey().limitToLast(5).once('value', (snapshot) => {
+            container.innerHTML = "";
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const transactions = [];
+                
+                Object.keys(data).forEach(key => {
+                    transactions.push({
+                        id: key,
+                        ...data[key]
+                    });
+                });
+                
+                transactions.reverse();
+                
+                transactions.forEach(trans => {
+                    const isCredit = trans.type === 'credit';
+                    container.innerHTML += `
+                    <div onclick="bukaResi('${trans.item}', '${trans.price}', '${trans.date}', '${trans.id}')" 
+                         class="transaction-item card-white p-4 cursor-pointer">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">${trans.item}</h4>
+                                <p class="text-xs text-gray-500 mt-1">${trans.date}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-sm font-bold ${isCredit ? 'text-green-600' : 'text-red-600'}">
+                                    ${isCredit ? '+' : '-'}Rp ${parseInt(trans.price).toLocaleString()}
+                                </span>
+                                <p class="text-[10px] font-medium text-gray-400 mt-1">Lihat Detail</p>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                
+                if (emptyMsg) emptyMsg.style.display = 'none';
+            } else {
+                if (emptyMsg) emptyMsg.style.display = 'block';
+            }
+        }).catch(error => {
+            console.error("Error loading history:", error);
+        });
+    }
+
+    function loadHistory() {
+        Swal.fire({
+            title: 'Memuat Riwayat...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        db.ref('history/' + userAktif).once('value', (snapshot) => {
+            Swal.close();
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const transactions = [];
+                
+                Object.keys(data).forEach(key => {
+                    transactions.push({
+                        id: key,
+                        ...data[key]
+                    });
+                });
+                
+                transactions.reverse();
+                
+                let historyHTML = `
+                <div class="text-center mb-6">
+                    <h3 class="text-lg font-bold text-gray-800">Riwayat Transaksi</h3>
+                    <p class="text-sm text-gray-500">Total: ${transactions.length} transaksi</p>
+                </div>
+                <div class="max-h-96 overflow-y-auto space-y-3">`;
+                
+                transactions.forEach(trans => {
+                    const isCredit = trans.type === 'credit';
+                    historyHTML += `
+                    <div class="transaction-item bg-gray-50 p-4 rounded-xl">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">${trans.item}</h4>
+                                <p class="text-xs text-gray-500 mt-1">${trans.date}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-sm font-bold ${isCredit ? 'text-green-600' : 'text-red-600'}">
+                                    ${isCredit ? '+' : '-'}Rp ${parseInt(trans.price).toLocaleString()}
+                                </span>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                
+                historyHTML += `</div>`;
+                
+                Swal.fire({
+                    title: '',
+                    html: historyHTML,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    width: '90%',
+                    padding: '20px'
+                });
+                
+            } else {
+                Swal.fire({
+                    title: 'Belum Ada Transaksi',
+                    text: 'Anda belum melakukan transaksi apapun',
+                    icon: 'info',
+                    confirmButtonText: 'Mengerti',
+                    confirmButtonColor: '#6366f1'
+                });
+            }
+        });
+    }
+
+    // ============================================
+    // FUNGSI BANK
+    // ============================================
+    
+    const daftarBank = [
+        { n: "BCA", c: "bg-gradient-to-br from-blue-800 to-blue-900" },
+        { n: "BRI", c: "bg-gradient-to-br from-blue-600 to-blue-700" },
+        { n: "MANDIRI", c: "bg-gradient-to-br from-yellow-500 to-yellow-600" },
+        { n: "BNI", c: "bg-gradient-to-br from-orange-600 to-orange-700" },
+        { n: "BSI", c: "bg-gradient-to-br from-teal-700 to-teal-800" },
+        { n: "CIMB NIAGA", c: "bg-gradient-to-br from-red-700 to-red-800" },
+        { n: "DANAMON", c: "bg-gradient-to-br from-orange-700 to-orange-800" },
+        { n: "PANIN BANK", c: "bg-gradient-to-br from-blue-700 to-blue-800" },
+        { n: "OCBC NISP", c: "bg-gradient-to-br from-green-700 to-green-800" },
+        { n: "BANK MEGA", c: "bg-gradient-to-br from-purple-700 to-purple-800" }
+    ];
+
+    function renderBankList() {
+        const container = document.getElementById('listBank');
+        if (!container) return;
+        
+        container.innerHTML = "";
+        daftarBank.forEach(b => {
+            container.innerHTML += `
+                <div onclick="bukaFormBank('${b.n}', '${b.c}')" class="bank-item card-hover card-white p-3 flex flex-col items-center cursor-pointer">
+                    <div class="w-12 h-12 ${b.c} rounded-xl flex items-center justify-center text-white font-bold text-xs mb-2">
+                        ${b.n.substring(0,3)}
+                    </div>
+                    <span class="text-xs font-bold text-gray-800 text-center">${b.n}</span>
+                </div>`;
+        });
+    }
+
+    function filterBank() {
+        let input = document.getElementById('searchBank').value.toUpperCase();
+        let items = document.getElementsByClassName('bank-item');
+        for (let i = 0; i < items.length; i++) {
+            let text = items[i].getElementsByTagName("span")[0].innerText;
+            items[i].style.display = text.indexOf(input) > -1 ? "" : "none";
+        }
+    }
+
+    function bukaFormBank(namaBank, warna) {
+        currentTransaction.bankName = namaBank;
+        document.getElementById('bankTitle').textContent = `Transfer ${namaBank}`;
+        document.getElementById('modalBank').style.display = 'flex';
+        document.getElementById('step1Bank').classList.add('active');
+        document.getElementById('step2Bank').classList.remove('active');
+        
+        document.getElementById('bankRekening').value = '';
+        document.getElementById('bankNama').value = '';
+        document.getElementById('bankNominal').value = '';
+        document.getElementById('saldoBank').textContent = 'Rp ' + saldoAktif.toLocaleString();
+        document.getElementById('totalBank').textContent = 'Rp 0';
+    }
+
+    function hitungAdminBank(val) {
+        const n = parseInt(val) || 0;
+        const totalText = document.getElementById('totalBank');
+        
+        if (n < 10000) {
+            totalText.innerText = "Minimal Rp 10.000";
+            totalText.className = "text-lg font-bold text-red-600";
+            return;
+        }
+
+        if (n > 10000000) {
+            totalText.innerText = "Maksimal Rp 10.000.000";
+            totalText.className = "text-lg font-bold text-red-600";
+            return;
+        }
+
+        // Aturan keuntungan BANK
+        let untung = 0;
+        if (n <= 100000) {
+            untung = 1500; // ≤100rb: Rp1.500
+        } else if (n <= 500000) {
+            untung = 2000; // ≤500rb: Rp2.000
+        } else if (n <= 1000000) {
+            untung = 5000; // ≤1jt: Rp5.000
+        } else if (n <= 10000000) {
+            untung = 10000; // ≤10jt: Rp10.000
+        }
+        
+        const total = n + untung;
+
+        if (total > saldoAktif) {
+            totalText.innerText = "Saldo Tidak Cukup!";
+            totalText.className = "text-lg font-bold text-red-600";
+        } else {
+            totalText.innerText = "Rp " + total.toLocaleString('id-ID');
+            totalText.className = "text-lg font-bold text-gray-800";
+        }
+    }
+
+    function lanjutKonfirmasiBank() {
+        const rek = document.getElementById('bankRekening').value.trim();
+        const nama = document.getElementById('bankNama').value.trim();
+        const nominal = parseInt(document.getElementById('bankNominal').value);
+        
+        if (!rek || !nama || !nominal) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Semua data harus diisi!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (nominal < 10000) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Minimal Rp 10.000!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (nominal > 10000000) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Maksimal Rp 10.000.000!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        // Hitung ulang admin fee
+        let untung = 0;
+        if (nominal <= 100000) {
+            untung = 1500;
+        } else if (nominal <= 500000) {
+            untung = 2000;
+        } else if (nominal <= 1000000) {
+            untung = 5000;
+        } else if (nominal <= 10000000) {
+            untung = 10000;
+        }
+        
+        const total = nominal + untung;
+        
+        if (total > saldoAktif) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Saldo tidak mencukupi! Saldo Anda: Rp ' + saldoAktif.toLocaleString(),
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        currentTransaction.bankAccount = rek;
+        currentTransaction.bankRecipient = nama;
+        currentTransaction.amount = nominal;
+        currentTransaction.adminFee = untung;
+        currentTransaction.total = total;
+        
+        // Tampilkan step 2
+        document.getElementById('step1Bank').classList.remove('active');
+        document.getElementById('step2Bank').classList.add('active');
+        
+        document.getElementById('confirmBankNama').textContent = currentTransaction.bankName;
+        document.getElementById('confirmBankRek').textContent = rek;
+        document.getElementById('confirmBankNamaPenerima').textContent = nama;
+        document.getElementById('confirmBankNominal').textContent = 'Rp ' + nominal.toLocaleString();
+        document.getElementById('confirmBankAdmin').textContent = 'Rp ' + untung.toLocaleString();
+        document.getElementById('confirmBankTotal').textContent = 'Rp ' + total.toLocaleString();
+        document.getElementById('confirmBankSaldo').textContent = 'Rp ' + (saldoAktif - total).toLocaleString();
+        document.getElementById('confirmBankPassword').value = '';
+    }
+
+    function kembaliKeStep1Bank() {
+        document.getElementById('step2Bank').classList.remove('active');
+        document.getElementById('step1Bank').classList.add('active');
+    }
+
+    function tutupModalBank() {
+        document.getElementById('modalBank').style.display = 'none';
+    }
+
+    function konfirmasiBankAkhir() {
+        const password = document.getElementById('confirmBankPassword').value;
+        
+        if (!password) {
+            Swal.fire({
+                title: 'Peringatan!',
+                text: 'Password harus diisi!',
+                icon: 'warning',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        if (password !== passAktif) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Password salah! Silakan coba lagi.',
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+            return;
+        }
+        
+        // Kurangi saldo
+        const newSaldo = saldoAktif - currentTransaction.total;
+        db.ref('users/' + userAktif).update({
+            saldo: newSaldo,
+            totalTransaksi: (userData.totalTransaksi || 0) + 1,
+            totalSpent: (userData.totalSpent || 0) + currentTransaction.total
+        })
+        .then(() => {
+            saveHistory(`TF Bank ${currentTransaction.bankName} ke ${currentTransaction.bankRecipient}`, currentTransaction.total);
+            
+            const pesanWA = `*TRANSFER BANK - RYD STORE*%0A%0A📋 *DETAIL TRANSFER*%0A├ User: *${userAktif.toUpperCase()}*%0A├ Bank: *${currentTransaction.bankName}*%0A├ Rekening: *${currentTransaction.bankAccount}*%0A├ Nama: *${currentTransaction.bankRecipient}*%0A├ Nominal: *Rp ${currentTransaction.amount.toLocaleString()}*%0A├ Biaya Admin: *Rp ${currentTransaction.adminFee.toLocaleString()}*%0A├ Total Bayar: *Rp ${currentTransaction.total.toLocaleString()}*%0A├ Saldo Sebelum: *Rp ${saldoAktif.toLocaleString()}*%0A├ Saldo Sesudah: *Rp ${newSaldo.toLocaleString()}*%0A├ Waktu: *${new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}*%0A└ Status: *PENDING (SALDO TERPOTONG)*%0A%0A_Silahkan proses transfer ini segera._`;
+            
+            window.open(`https://wa.me/${WA_ADMIN}?text=${pesanWA}`, '_blank');
+            
+            Swal.fire({
+                title: 'Berhasil!',
+                html: `
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <p class="font-bold text-gray-800">Transfer Diproses</p>
+                    <p class="text-sm text-gray-600 mt-2">Admin akan memproses transfer Anda</p>
+                </div>`,
+                icon: 'success',
+                timer: 3000,
+                showConfirmButton: false
+            });
+            
+            tutupModalBank();
+            renderDashboard();
+            
+        })
+        .catch((error) => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Gagal mengurangi saldo: ' + error.message,
+                icon: 'error',
+                confirmButtonColor: '#6366f1'
+            });
+        });
+    }
+
+    // ============================================
+    // FUNGSI RESI
+    // ============================================
+    
+    function bukaResi(layanan, harga, waktu, idResi) {
+        document.getElementById('res_user').textContent = userAktif.toUpperCase();
+        document.getElementById('res_jam').textContent = waktu;
+        document.getElementById('res_layanan').textContent = layanan;
+        document.getElementById('res_total').textContent = "Rp " + parseInt(harga).toLocaleString('id-ID');
+        document.getElementById('res_id').textContent = "RYD-" + idResi.toUpperCase().substring(0, 8);
+        openSubPage('pageResi');
+    }
+
+    function shareResi() {
+        const resi = document.getElementById('res_id').textContent;
+        const pelanggan = document.getElementById('res_user').textContent;
+        const layanan = document.getElementById('res_layanan').textContent;
+        const total = document.getElementById('res_total').textContent;
+        const waktu = document.getElementById('res_jam').textContent;
+        
+        const pesan = `Resi Transaksi RYD STORE%0A%0AID Resi: *${resi}*%0APelanggan: *${pelanggan}*%0aLayanan: *${layanan}*%0aTotal: *${total}*%0aWaktu: *${waktu}*`;
+        
+        Swal.fire({
+            title: 'Bagikan Resi',
+            text: 'Pilih platform untuk membagikan resi:',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonText: 'WhatsApp',
+            confirmButtonColor: '#25D366',
+            denyButtonText: 'Salin Teks',
+            denyButtonColor: '#6366f1',
+            cancelButtonText: 'Batal',
+            cancelButtonColor: '#ef4444'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.open(`https://wa.me/?text=${encodeURIComponent(pesan)}`, '_blank');
+            } else if (result.isDenied) {
+                navigator.clipboard.writeText(pesan.replace(/%0a/gi, '\n').replace(/%0A/gi, '\n'));
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Resi berhasil disalin',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    }
+
+    // ============================================
+    // INISIALISASI APLIKASI
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedUser = localStorage.getItem('ryd_username');
+        const savedPass = localStorage.getItem('ryd_password');
+        
+        if (savedUser && savedPass) {
+            document.getElementById('app').innerHTML = `
+            <div class="min-h-screen flex items-center justify-center">
+                <div class="text-center">
+                    <div class="loading-spinner"></div>
+                    <p class="mt-4 text-gray-600 font-medium">Memuat aplikasi...</p>
+                </div>
+            </div>`;
+            
+            setTimeout(() => {
+                db.ref('users/' + savedUser).once('value', (snapshot) => {
+                    if (snapshot.exists() && snapshot.val().password === savedPass) {
+                        userAktif = savedUser;
+                        passAktif = savedPass;
+                        userData = snapshot.val();
+                        saldoAktif = userData.saldo || 0;
+                        renderDashboard();
+                    } else {
+                        renderLogin();
+                    }
+                }).catch(() => {
+                    renderLogin();
+                });
+            }, 1000);
+        } else {
+            renderLogin();
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                tutupModal();
+                tutupModalTransfer();
+                tutupModalTopUp();
+                tutupModalKonfirmasiTopUp();
+                tutupModalBank();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
